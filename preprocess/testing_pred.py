@@ -49,15 +49,18 @@ text = text.drop(columns = ['URL','doi','new_text','word_count','gender'], axis 
 text['prop'] = text['uncertain']/text['total_cnt']
 
 text = text[text['total_cnt'] > 5]
+text = text[text['total_cnt'] < 100]
 
 f = text[text['G'] == "Female"]
 m = text[text['G'] == "Male"]
-m = m.sample(n = 680, replace = False, random_state=1)
+m = m.sample(n = len(f), replace = False, random_state=0)
 
 print(f['prop'].mean()," ", m['prop'].mean())
 
 #print(f['total_cnt'].mean()," ", m['total_cnt'].mean())
 print(len(f)," ",len(m))
+
+
 
 
 
