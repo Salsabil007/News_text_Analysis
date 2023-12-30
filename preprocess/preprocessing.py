@@ -30,7 +30,7 @@ def extract_sentences_and_word_count(paragraph):
 
     lst = []
 
-    add = ["subscribe", "sign up", "image credit", "ad blocker", "ad blockers", "advertise", "advertisement"]
+    add = ["subscribe", "sign up", "image credit", "ad blocker", "ad blockers", "advertise", "advertisement"] #continue reading
     # Print the extracted sentences and word count
     for i, (sentence, word_count) in enumerate(sentences_with_word_count, start=1):
         flag = 1
@@ -58,6 +58,7 @@ class data_process():
     def deduplicate(self):
         #drop duplicate rows
         self.text = self.text.drop_duplicates()
+        #self.text = self.text.drop_duplicates(subset = ['doi','media'])
         self.text = self.text.drop_duplicates(subset = ['Text'])
         self.text = self.text.dropna(subset = ['Text'])
         self.text['Text'] = self.text['Text'].astype(str)
@@ -115,7 +116,7 @@ class data_process():
 
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--filepath", type=str, default="data/news_text.csv") #data/news_text.csv
+    parser.add_argument("--filepath", type=str, default="data/news_text_dec29.csv") #data/news_text.csv
     args = parser.parse_args()
     return args
 
@@ -141,8 +142,8 @@ if __name__ == "__main__":
     text = processor.pipeline()
     #text = text.drop(columns = ['Title','Text','Keywords','doi','media','gender','text','lang'], axis = 1)
     text = text.drop(columns = ['Title','Text','Keywords','lang'], axis = 1)
-    text.to_csv("interim.csv", index = False)
-    text = pd.read_csv("interim.csv", converters={'sentence': ast.literal_eval})
+    text.to_csv("interim_dec29.csv", index = False)
+    text = pd.read_csv("interim_dec29.csv", converters={'sentence': ast.literal_eval})
     print(len(text))
     '''
     #df_rea = pd.read_csv('sample_data.csv', converters={'column_name': ast.literal_eval})
@@ -162,7 +163,7 @@ if __name__ == "__main__":
     print(text.iloc[0]['sentence'][5],"\n")
     print(text.iloc[0]['sentence'][6],"\n")
     print(text.iloc[0]['sentence'][7],"\n")
-    print(text.iloc[0]['sentence'][38],"\n")
+    print(text.iloc[0]['sentence'][8],"\n")
     print(text.iloc[0]['sentence'][l-7],"\n")
     print(text.iloc[0]['sentence'][l-6],"\n")
     print(text.iloc[0]['sentence'][l-5],"\n")
