@@ -7,6 +7,7 @@ import re
 import nltk
 from nltk.tokenize import sent_tokenize, word_tokenize
 import ast
+from collections import OrderedDict
 
 
 def remove_bad_chars(text):
@@ -43,7 +44,8 @@ def extract_sentences_and_word_count(paragraph):
             if flag == 1:        
                 lst.append(sentence)
 
-    return lst
+    res = list(OrderedDict.fromkeys(lst))
+    return res
     
 
 
@@ -175,3 +177,4 @@ if __name__ == "__main__":
     #print(text.dtypes)
     #print(text.iloc[0]['new_text'])
     
+#there could be repeated lines, so we should deduplicate the list of sentence
