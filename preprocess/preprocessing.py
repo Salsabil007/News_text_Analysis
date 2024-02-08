@@ -49,7 +49,7 @@ def replace_titles(text):
 
 def replace_dots_after_prefixes(text, replacement_char=''):
     # Define the prefixes pattern
-    prefixes_pattern = r'(Mr|mr|St|Mrs|mrs|Ms|ms|Dr|dr|Prof|prof|Pro|pro|et al)[.]'
+    prefixes_pattern = r'( Mr| mr| St| Mrs| mrs| Ms| ms| Dr| dr| Prof| prof| Pro| pro| et al)[.]'
 
     # Replace dots after prefixes with the specified character
     replaced_text = re.sub(prefixes_pattern, lambda match: match.group(0).replace('.', replacement_char), text)
@@ -74,7 +74,7 @@ def remove_headlines(text):
     #print(lines)
 
     # Define a regular expression pattern to match potential headlines
-    headline_pattern = re.compile(r'^[A-Za-z0-9$].*[^.?!;:"]$')
+    headline_pattern = re.compile(r'^[A-Za-z0-9$].*[^.?!;:"”]$') #lines that start with an alphanumeric character or a dollar sign and don't end with .?!:"
 
     # Identify lines that match the pattern and remove them
     cleaned_lines = [line for line in lines if not headline_pattern.match(line)]
@@ -87,6 +87,7 @@ def remove_headlines(text):
 
 def extract_sentences_and_word_count(paragraph):
     #%%%%
+    #print("%%%% ",paragraph)
     paragraph = regex.sub(r'\s+',' ',paragraph)
     paragraph = replace_titles(paragraph)
     paragraph = replace_dots_after_prefixes(paragraph, replacement_char='')
@@ -95,14 +96,14 @@ def extract_sentences_and_word_count(paragraph):
     paragraph = replace_pattern(paragraph)
     
 
-    pattern = re.compile(r'(\s+[A-Z])\.')
+    pattern = re.compile(r'(\s+[A-Z])\.') ##Whatter A. shared his findings -> Walter A shared his findings
 
     # Replace the pattern with a space and the matched uppercase letter
     paragraph = pattern.sub(r'\1 ', paragraph)
 
     #%%%%
     paragraph = regex.sub(r'\s+',' ',paragraph)
-    paragraph = re.sub(r'([.,;?!])(?!\s|$)', r'\1 ', paragraph)
+    paragraph = re.sub(r'([.,;?!])(?!\s|$)', r'\1 ', paragraph) #insert a space after punctuation marks if they are not already followed by a whitespace character or the end of the line.
 
     sentences = sent_tokenize(paragraph)
     sentences_with_word_count = []
@@ -115,11 +116,11 @@ def extract_sentences_and_word_count(paragraph):
 
     lst = []
 
-    add = ["subscribe", "sign up", "image credit", "ad blocker", "ad blockers", "advertise", "advertisement", "thanks","thank you", "paywall","365","copyright","###"] #continue reading
+    add = ["subscribe", "sign up", "image credit", "ad blocker", "ad blockers", "advertise", "advertisement", "thanks","thank you", "paywall","365","copyright","instagram","###"] #continue reading
     # Print the extracted sentences and word count
     for i, (sentence, word_count) in enumerate(sentences_with_word_count, start=1):
         flag = 1
-        if sentence != "\"X\"." and sentence != "\"X\"," and sentence != "\"X\";" and sentence != "\"X\"!" and sentence != "\"X\"?" and sentence != "\"X\"" and word_count >= 5:
+        if sentence != "\"X\"." and sentence != "\"X\"," and sentence != "\"X\";" and sentence != "\"X\"!" and sentence != "\"X\"?" and sentence != "\"X\"" and word_count >= 10:
             #print(f"Sentence {i}: {sentence}\nWord Count: {word_count}\n")
             for j in add:
                 if j in sentence.lower():
@@ -128,7 +129,7 @@ def extract_sentences_and_word_count(paragraph):
             if flag == 1:        
                 lst.append(sentence)
 
-    res = list(OrderedDict.fromkeys(lst))
+    res = list(OrderedDict.fromkeys(lst)) #remove duplicates from a list while preserving the order of the elements
     return res
     
 
@@ -151,7 +152,13 @@ class data_process():
 
     def remove_non_english_bad_characters(self):
         #remove bad characters e.g., \t, \t, and special characters from text
+
+
         self.text['Text'] = self.text['Text'].apply(lambda x:remove_headlines(x))
+
+        #g = self.text[self.text['URL'] == "https://www.yahoo.com/lifestyle/golf-cart-gail-filmed-calling-cops-black-man-cheering-son-soccer-game-115149661.html"]
+        #print("%%%%%%%% ",g.iloc[0]['Text'])
+
         self.text['new_text'] = self.text['Text'].apply(lambda x:remove_bad_chars(x))
 
         #detect the language of the text and remove non-english text
@@ -168,11 +175,38 @@ class data_process():
     def wordlimit(self):
         self.text['word_count'] = self.text['new_text'].apply(lambda x: len(x.split()))
         self.text = self.text[self.text['word_count'] >= 100]
+        
 
     def replace_and_add_fullstop(self):
         # Use a regular expression to find and replace content within quotation marks
         #cleaned_text = re.sub(r'["“]([^"”]*?)([.,;?!]*)["”]', r'"X"\2', text)
-        self.text['new_text'] = self.text['new_text'].apply(lambda x: re.sub(r'["“]([^"”]*?)([.,;?!]*)["”]', r'"X"\2', x))
+
+        #self.text['new_text'] = self.text['new_text'].apply(lambda x: re.sub(r'["“]([^"”]*?)([.,;?!]*)["”]', r'"X"\2', x)) #MAIN LINE WHICH I REPLACED BY THE $$$$$$ PART
+
+
+        #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        pattern = r"([A-Za-z])'s" #removing apostophe s, so any ' with a alpha before and s after will be removed
+        self.text['new_text'] = self.text['new_text'].apply(lambda x: re.sub(pattern, r"\1s", x))
+
+        pattern = r"([A-Za-z])’s" #removing apostophe s, so any ' with a alpha before and s after will be removed
+        self.text['new_text'] = self.text['new_text'].apply(lambda x: re.sub(pattern, r"\1s", x))
+        
+        #pattern = r"(?<=\s)'([^']*?)([.,;?!]*)'" #at first, remove single quoted part as by rule, single quote comes inside double quote
+        #self.text['new_text'] = self.text['new_text'].apply(lambda x: re.sub(pattern, r'X\2', x)) #place the ending punc after X
+
+
+        #pattern = r"'([^']*)'"
+        #text = re.sub(pattern, r'X', text)
+        
+        #pattern = r"'([^']*)'"
+        #a =  re.sub(pattern, r'X', text)
+        
+        
+        self.text['new_text'] =  self.text['new_text'].apply(lambda x:re.sub(r'["“]([^"”]*?)([.,;?!]*)["”]', r'"X"\2', x)) #finally, remove the double quote.
+        #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+        #g = self.text[self.text['URL'] == "https://www.yahoo.com/lifestyle/golf-cart-gail-filmed-calling-cops-black-man-cheering-son-soccer-game-115149661.html"]
+        #print("%%%%%%%% ",g.iloc[0]['new_text'])
 
         
         #%%%#add space after punctuation if there is none
@@ -222,6 +256,7 @@ if __name__ == "__main__":
     except pd.errors.EmptyDataError:
         print(f"Error: The file at {filepath} is empty")
     
+    #data = data[data['URL'] == "https://www.yahoo.com/lifestyle/golf-cart-gail-filmed-calling-cops-black-man-cheering-son-soccer-game-115149661.html"]
     processor = data_process(data)
 
     # Call the print_len method
@@ -233,9 +268,17 @@ if __name__ == "__main__":
     text = processor.pipeline()
     #text = text.drop(columns = ['Title','Text','Keywords','doi','media','gender','text','lang'], axis = 1)
     text = text.drop(columns = ['Title','Text','Keywords','lang'], axis = 1)
-    text.to_csv("interim_test.csv", index = False)
-    text = pd.read_csv("interim_test.csv", converters={'sentence': ast.literal_eval})
+
+    sent_len = []
+    for ind in text.index:
+        sent_len.append(len(text['sentence'][ind]))
+
+    text['sent_len'] = sent_len
+
+    text.to_csv("interim_sentiment.csv", index = False)
+    text = pd.read_csv("interim_sentiment.csv", converters={'sentence': ast.literal_eval})
     print(len(text))
+    print(text.iloc[1]['sentence'])
     '''
     #df_rea = pd.read_csv('sample_data.csv', converters={'column_name': ast.literal_eval})
     l = len(text.iloc[1]['sentence'])
@@ -244,10 +287,10 @@ if __name__ == "__main__":
     print(l)
     l = len(text.iloc[3]['sentence'])
     print(l)'''
-    l = len(text.iloc[11]['sentence'])
+    l = len(text.iloc[10]['sentence'])
     print(l)
-    print(text.iloc[11]['sentence'])
-    print(text.iloc[11]['URL'])
+    print(text.iloc[10]['sentence'])
+    print(text.iloc[10]['URL'])
     '''print(text.iloc[0]['sentence'][0],"\n")
     print(text.iloc[0]['sentence'][1],"\n")
     print(text.iloc[0]['sentence'][2],"\n")
