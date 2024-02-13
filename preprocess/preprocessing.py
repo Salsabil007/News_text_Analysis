@@ -241,7 +241,7 @@ class data_process():
 
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--filepath", type=str, default="data/news_text_jan15.csv") #data/news_text.csv #data/news_text_dec29.csv
+    parser.add_argument("--filepath", type=str, default="data/news_text_feb7.csv") #data/news_text.csv #data/news_text_dec29.csv
     args = parser.parse_args()
     return args
 

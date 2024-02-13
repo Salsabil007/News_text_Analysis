@@ -9,7 +9,10 @@ print(text.dtypes)
 text = text[text['sent_len'] >= 5]
 text = text[text['sent_len'] <= 120]
 
+
+
 print(len(text))
+print("unique doi ",text['doi'].nunique())
 
 text = text.drop(columns = ['new_text'], axis = 1)
 
@@ -27,14 +30,12 @@ text_exploded = text.explode('sentence')
 print(len(text_exploded))
 print(text_exploded.iloc[0]['sentence'])
 
-#print(text_exploded.dtypes)
-text_exploded.to_csv("individual_sentence.csv", index = False)
+
+'''text_exploded.to_csv("individual_sentence.csv", index = False)
 
 tt = pd.read_csv("individual_sentence.csv")
-print(tt.iloc[0]['sentence'])
-#print(len(text_exploded))
-#print(text.iloc[12]['sentence'])
-#print(text.iloc[12]['URL'])
+print(tt.iloc[0]['sentence'])'''
+
 
 
 
